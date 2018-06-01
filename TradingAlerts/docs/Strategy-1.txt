@@ -1,0 +1,9 @@
+1. determine the uptrend or downtrend
+2. determine the stop-loss values
+
+1. determine the uptrend or downtrend
+======================================
+
+Uptrend:
+---------
+If the current low is higher than the previous low and 

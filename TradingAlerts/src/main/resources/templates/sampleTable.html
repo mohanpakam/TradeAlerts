@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['table']});
+      google.charts.setOnLoadCallback(drawTable);
+
+      function drawTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Stock Ticker');
+        data.addColumn('string', 'Stock Name');
+        data.addColumn('string', 'Date');
+        data.addColumn('string', 'added by');
+        data.addColumn('string', 'URL1');
+        data.addColumn('string', 'URL2');
+        data.addColumn('string', 'URL3');
+        data.addRows([
+        	['INTC','Intel Corp','2018-02-04T08:44:18.000-05:00','SYSTEM','test link 1','test link 2','test link 3']
+        ]);
+
+        var table = new google.visualization.Table(document.getElementById('table_div'));
+
+        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+      }
+    </script>
+  </head>
+  <body>
+    <div id="table_div"></div>
+  </body>
+</html>
