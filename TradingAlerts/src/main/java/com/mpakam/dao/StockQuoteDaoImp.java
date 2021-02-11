@@ -3,6 +3,7 @@ package com.mpakam.dao;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.transaction.Transactional;
@@ -63,7 +64,7 @@ public class StockQuoteDaoImp implements StockQuoteDao {
 	}
 
 	@Override
-	public void save(TreeSet<StockQuote> stockQuoteList) {
+	public void save(Set<StockQuote> stockQuoteList) {
 		/*stockQuoteList.sort(new Comparator<StockQuote>() {
 			@Override
 			public int compare(StockQuote o1, StockQuote o2) {
@@ -99,6 +100,14 @@ public class StockQuoteDaoImp implements StockQuoteDao {
 		Query query = sessionFactory.getCurrentSession().createSQLQuery(
 				"CALL cleanup()");
 		query.getFirstResult();
+	}
+	
+	@Override
+	public Set<StockQuote> findAllSetByStock(Stock stock) {
+		Query query = sessionFactory.getCurrentSession().getNamedQuery("StockQuote.findAllByStock")
+				.setInteger("stockNum", stock.getStocknum())
+				.setInteger("interval", stock.getInterval());
+		return  new TreeSet<StockQuote>(query.list());
 	}
 
 }

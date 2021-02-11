@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
 import com.mpakam.app.config.EnvironmentConfig;
 import com.mpakam.dao.MonitoredStockDao;
 import com.mpakam.dao.StockDao;
@@ -20,8 +21,6 @@ import com.mpakam.model.Stock;
 import com.mpakam.model.StockHlData;
 import com.mpakam.util.IEXTradingService;
 import com.mpakam.util.ListUtil;
-
-import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service
 public class StockHlDataService implements IStockHlDataService {

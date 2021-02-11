@@ -18,13 +18,11 @@ public class MonitoredStockService  implements IMonitoredStockService{
 	@Autowired
 	IStockQuoteService quoteSvc;
 	
-	@Override
 	public void loadMonitoredStockHistory() throws InterruptedException, ExecutionException {
 		List<MonitoredStock> list =mStockDao.retrievegetActivelyMonitoredStocks();
-        quoteSvc.analyzeStock(list);
+        quoteSvc.analyzeStockYahooAPI(list);
 	}
 	
-	@Override
 	public void loadBatchMonitoredStockHistory() throws InterruptedException, ExecutionException {
 		List<MonitoredStock> list =mStockDao.retrievegetActivelyMonitoredStocks();
         quoteSvc.iexAnalyzeStock(list);
