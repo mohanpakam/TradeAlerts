@@ -35,7 +35,7 @@ import com.mpakam.service.EmailService;
 
 
 @Service
-public class HeikenAshiStochRsiStrategy2Service implements IStrategyService{
+public class HeikenAshiStochRsiStrategy2Service{
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
@@ -75,7 +75,7 @@ public class HeikenAshiStochRsiStrategy2Service implements IStrategyService{
 	BacktestStockOrderDao backtestOrderDao;
 	
 	
-	@Override
+//	@Override
 	@Transactional
 	public int executeStrategy(Set<StockQuote> quotes) {
 		int trend =0;
@@ -226,7 +226,7 @@ public class HeikenAshiStochRsiStrategy2Service implements IStrategyService{
 		//System.out.println(" StockRsiD is" + currentStrategyQuote.getStochRsiD());
 	}	
 	
-	@Override
+//	@Override
 	public int checkForSignal(StrategyStockQuote currentQuote, StrategyStockQuote prevQuote) {
 		
 		if(currentQuote.getStockQuote().getInterval() == 480)
@@ -258,7 +258,7 @@ public class HeikenAshiStochRsiStrategy2Service implements IStrategyService{
 		}*/
 	}
 	
-	@Override
+//	@Override
 	public int checkForSignalForTrend(StrategyStockQuote currentQuote, StrategyStockQuote prevQuote) {
 		
 		if(currentQuote.getStockQuote().getInterval() == 480)

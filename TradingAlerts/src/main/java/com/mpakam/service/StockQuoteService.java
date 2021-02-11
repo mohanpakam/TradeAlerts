@@ -3,6 +3,7 @@
  */
 package com.mpakam.service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,6 +25,7 @@ import com.mpakam.dao.CustomerTickerTrackerDao;
 import com.mpakam.dao.MonitoredStockDao;
 import com.mpakam.dao.StockDao;
 import com.mpakam.dao.StockQuoteDao;
+import com.mpakam.dataapi.YahooFinanceAPIService;
 import com.mpakam.model.MonitoredStock;
 import com.mpakam.model.Stock;
 import com.mpakam.model.StockQuote;
@@ -71,6 +73,8 @@ public class StockQuoteService implements IStockQuoteService {
 	@Autowired
 	RenkoChartStrategyService renkoSvc;
 	
+	@Autowired
+	YahooFinanceAPIService yahooSvc;
 
 	/* (non-Javadoc)
 	 * @see com.mpakam.service.StockQuoteService#syncBySymbol(java.lang.String)
@@ -80,10 +84,7 @@ public class StockQuoteService implements IStockQuoteService {
 	public void analyzeStock(Stock symbol) throws Exception {
 		Set<StockQuote> quoteList =dataProviderSvc.retrieveCandleData(symbol);
 		StockQuote lastItem=quoteDao.findLastStockQuote(symbol);
-		if(lastItem != null && iexService.getTimerSeries(lastItem.getQuoteDatetime(),symbol.getInterval()).size() == 0) {
-			System.out.println(symbol.getTicker() +" Already at full sync - no longer needed");
-			return; 
-		}
+		//TODO: Validate - Do we have any new quotes to retreive ?
 		//TODO: Call the strategy selector
 		TreeSet<StockQuote> quotes = saveQuotes(symbol,quoteList);
 		if(!quotes.isEmpty())
@@ -94,7 +95,7 @@ public class StockQuoteService implements IStockQuoteService {
 	}
 	
 	@Transactional
-	private TreeSet<StockQuote> saveQuotes(Stock stock, Set<StockQuote> quoteList) {
+	public TreeSet<StockQuote> saveQuotes(Stock stock, Set<StockQuote> quoteList) {
 		TreeSet<StockQuote> newRecords = new TreeSet<StockQuote>();
 		StockQuote lastItem=quoteDao.findLastStockQuote(stock);
 		quoteList.forEach(p->{
@@ -386,6 +387,29 @@ public class StockQuoteService implements IStockQuoteService {
 		else
 			System.out.println("Stock - No new records were found- Market may have probably closed - " +symbol.getTicker());
 		return ;
+	}
+
+	@Override
+	public void analyzeStockYahooAPI(List<MonitoredStock> mStockList) throws InterruptedException, ExecutionException {
+		mStockList.parallelStream().forEach(mStock->{
+			Stock s = mStock.getStock();
+			System.out.println("Analyzing - " + s.getTicker() );
+			//Retrieve the most recent Stock Quote for this stock.
+			StockQuote sq = quoteDao.findLastStockQuote(s);
+			System.out.println(sq);
+			if(sq == null) {
+				sq = new StockQuote();
+				sq.setStock(s);
+			}
+			try {
+				quoteDao.save(yahooSvc.retrieveDailyStockQuote(sq));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+		return ;
+		
 	}
     
 }

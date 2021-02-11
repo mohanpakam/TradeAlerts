@@ -11,23 +11,17 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.patriques.input.timeseries.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.mpakam.app.config.EnvironmentConfig;
 import com.mpakam.dao.BacktestStockOrderDao;
@@ -66,18 +60,9 @@ import com.mpakam.util.IQuoteDataProviderService;
 import com.mpakam.util.StooqHistoryLoaderUtilService;
 import com.mpakam.util.UIToolsService;
 
-import pl.zankowski.iextrading4j.api.stocks.Chart;
-import pl.zankowski.iextrading4j.api.stocks.DailyChart;
-import pl.zankowski.iextrading4j.api.stocks.Price;
-import pl.zankowski.iextrading4j.client.IEXTradingClient;
-import pl.zankowski.iextrading4j.client.rest.request.stocks.BatchChartRequestBuilder;
-import pl.zankowski.iextrading4j.client.rest.request.stocks.BatchPriceRequestBuilder;
-import pl.zankowski.iextrading4j.client.rest.request.stocks.ChartRange;
-import pl.zankowski.iextrading4j.client.rest.request.stocks.DailyChartRequestBuilder;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes=TradingAlertsApplication.class)
-@TestPropertySource(locations="classpath:application-test.properties")
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@SpringBootTest(classes=TradingAlertsApplication.class)
+//@TestPropertySource(locations="classpath:application-test.properties")
 public class TradingAlertsApplicationTests {
 	
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -270,113 +255,11 @@ public class TradingAlertsApplicationTests {
     }
     
     @Test
-    @Transactional
-    public void chartDynamicRequestSample() {
-    	IEXTradingClient iexTradingClient = IEXTradingClient.create();
-        final List<DailyChart> chartList = iexTradingClient.executeRequest(new DailyChartRequestBuilder()
-                .withDailyChartRange(ChartRange.TODAY)
-                .withSymbol("AAPL")
-                .build());
-        int i=0;
-        int interval = 15;
-        BigDecimal high = null;
-        BigDecimal low = null;
-        BigDecimal open = null;
-        BigDecimal close= null;
-        BigDecimal prevOpen = null;
-        BigDecimal prevClose= null;
-        Stock s = stockDao.findBy(206);
-        StockQuote prevSQ=null;
-        TreeSet<StockQuote> sqList = new TreeSet<StockQuote>();
-        String quoteDatetime = null;
-        for(DailyChart dc: chartList){
-        	System.out.println(dc.getDate() + " " + dc.getMinute());
-
-        	if(high == null || high.compareTo(dc.getMarketHigh())>0 )
-        		high=dc.getMarketHigh();
-        	
-        	if(low == null || low.compareTo(dc.getMarketLow())<0 )
-        		low=dc.getMarketLow();
-        	
-        	if(prevOpen == null) {
-        		//Assuming its a bullish candle. this will later 
-        		//be corrected according to the next candle
-        		open = dc.getLow(); 
-        		close = dc.getHigh();
-        		prevOpen=open;
-        		prevClose = close;
-        	} else if (open == null) {
-        		//Calculate the correct sequence
-        		if(close.compareTo(dc.getHigh()) <= 0) { // this means previous candle may be red.
-        			open = prevClose;
-        			close = prevOpen;
-        		}else {
-        			open = prevOpen;
-        			close= prevClose;
-        		}
-        	}
-        	if(i == 0) { //Capturing the time
-        		quoteDatetime=dc.getDate() + " " + dc.getMinute();
-        	}
-        	
-        	if(i == interval) {
-        		StockQuote sq = new StockQuote();
-        		sq.setStock(s);
-        		sq.setOpen(open);
-        		sq.setClose(close);
-        		sq.setHigh(high);
-        		sq.setLow(low);
-        		sq.setInterval(interval);
-        		//20180206 09:34
-        		//String str = "1986-04-08 12:30";
-        		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm");
-        		LocalDateTime dateTime = LocalDateTime
-        				.parse(quoteDatetime, formatter);
-        		sq.setQuoteDatetime(dateTime);
-        		sqList.add(sq);
-        		//Resetting for next interval        		prevSQ = sq;
-        		prevClose = close;
-        		prevOpen = open;
-        		high = null;
-        		low = null;
-        		i=0;
-        	}
-        	i++;
-        }
-    }
-    
-    @Test
     public void testPriceRetrievalFromIEX() {
     	stockTickSvc.saveCurrentPriceForAllMonitoredStocks();
     }
     
-    @Test
-    public void batchChartRequestSample() {
-    	IEXTradingClient iexTradingClient = IEXTradingClient.create();
-        final Map<String, Map<String, List<Chart>>> chartList = iexTradingClient.executeRequest(new BatchChartRequestBuilder()
-                .withSymbol("AAPL,MSFT")
-                .build());
-        
-        chartList.entrySet().forEach(p->{
-        	List<Chart> chart =  p.getValue().get("chart");
-        	chart.forEach(q->{
-        		System.out.println(p.getKey() + " high " + q.getHigh());
-        	});
-        });
-    }
-    
-    @Test
-    public void batchPriceRequestSample() {
-    	IEXTradingClient iexTradingClient = IEXTradingClient.create();
-        final Map<String, Price> chartList = iexTradingClient.executeRequest(new BatchPriceRequestBuilder()
-                .withSymbol("aapl,fbNTCT,OLED,HFC,CNK,CCC,EXPE,CENX,TTM,JBHT,BLL,JWN,WPZ,CCI,ADSK,BWLD,FMC,STZ,MGA,WSM,PBF,PPG,AKAM,MIK,SQM,CRC,LULU,RL,ALSN,PK,LEG,FTNT,URI,ORLY,FIVE,INTU,LKQ,CATM,ALXN,NNN,RHT,MDC,GS,NFLX,MDLZ,QCOM,AAPL")
-                .build());
-        
-        chartList.entrySet().forEach(p->{
-        	Price price=  p.getValue();
-        	System.out.println(p.getKey()+ " price is " + price.getPrice());
-        });
-    }
+
     
     @Test
     public void batchDailyDataTest() throws Exception {
@@ -517,7 +400,6 @@ public class TradingAlertsApplicationTests {
     }
 
     @Test
-    @Rollback(false)
     public void loadHistoryForMonitoredStocks() throws IOException, InterruptedException, ExecutionException {
     	List<MonitoredStock> list =mStockDao.retrievegetActivelyMonitoredStocks();
     	list.parallelStream().forEach(mStock->{
@@ -535,7 +417,6 @@ public class TradingAlertsApplicationTests {
     }
 
     @Test
-    @Rollback(false)
     public void parseStockHLDataFromHistory() throws InterruptedException, ExecutionException {    
     	int stocknum = 991;
     	Stock s = stockDao.findBy(stocknum);
@@ -618,7 +499,6 @@ public class TradingAlertsApplicationTests {
     
     @Test
     @Transactional
-    @Rollback(false)
     public void loadInitialTrend() throws Exception{
     	Stock st = stockDao.findBy(884);
     	List<Stock> sList = new ArrayList<>();
@@ -699,7 +579,6 @@ public class TradingAlertsApplicationTests {
     
     @Test
     @Transactional
-    @Rollback(false)
     public void backTest() throws Exception{
     	Stock st = stockDao.findBy(884);
     	List<Stock> sList = new ArrayList<>();
@@ -842,13 +721,11 @@ public class TradingAlertsApplicationTests {
     }
     
     @Test
-    @Rollback(false)
     public void sendEmails() {
     	emailSvc.sendEmail();
     }
     
     @Test
-    @Rollback(false)
     public void run5Min() throws Exception {
     	tasksDao.analyze5MinAlerts(LocalDateTime.now());
     }
@@ -895,7 +772,6 @@ public class TradingAlertsApplicationTests {
     }
     
     @Test
-    @Rollback(false)
     public void testRenkoStrategy() throws Exception {
 		Stock s = stockDao.findBy(1205);
 		List<StockQuote> quotes = stockQuoteDao.findAllByStock(s);
@@ -957,7 +833,6 @@ public class TradingAlertsApplicationTests {
     }
     
     @Test
-    @Rollback(false)
     public void iexRenkoChartAnalyzeStock() throws Exception {
     	List<MonitoredStock> mStockList = mStockDao.retrievegetActivelyMonitoredStocks();
     	
@@ -971,7 +846,6 @@ public class TradingAlertsApplicationTests {
     }
     
     @Test
-    @Rollback(false)
     public void analyzeIexRenkoChartAnalyzeStock() throws Exception {
     	List<MonitoredStock> mStockList = mStockDao.retrievegetActivelyMonitoredStocks();
     	
@@ -979,14 +853,12 @@ public class TradingAlertsApplicationTests {
     }
     
     @Test
-    @Rollback(false)
     public void analyzeIexRenkoChartAnalyzeForStock() throws Exception {
     	List<MonitoredStock> mStockList = mStockDao.retreiveByStockNum(1760);
     	quoteService.iexRenkoChartAnalyzeStock(mStockList);
     }
     
     @Test
-    @Rollback(false)
     public void iexRenkoChartAnalyzeStockForStock() throws Exception {
     	List<MonitoredStock> mStockList = mStockDao.retreiveByStockNum(1205);
     	
@@ -1000,7 +872,6 @@ public class TradingAlertsApplicationTests {
     }
     
     @Test
-    @Rollback(false)
     public void calculateATR() throws Exception{
     	Stock s = stockDao.findBy(1205);
 		

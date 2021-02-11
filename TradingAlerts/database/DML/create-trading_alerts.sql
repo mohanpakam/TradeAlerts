@@ -390,3 +390,16 @@ ROW_FORMAT DEFAULT;
 CREATE INDEX `FK_tech_analysis_heikenashi_1`
    ON trading_alerts.tech_analysis_heikenashi(stock_quote_id)
    USING BTREE;
+   
+   CREATE TABLE `trading_alerts`.`tech_analysis_atrs` (
+  `atr_id` INT NOT NULL,
+  `average_true_range` DECIMAL(10,2) NULL,
+  `true_range` DECIMAL(10,2) NULL,
+  `stock_quote_id` INT NULL,
+  PRIMARY KEY (`atr_id`),
+  INDEX `stock_quote_id_fk_idx` (`stock_quote_id` ASC) VISIBLE,
+  CONSTRAINT `stock_quote_id_fk`
+    FOREIGN KEY (`stock_quote_id`)
+    REFERENCES `trading_alerts`.`stock_quotes` (`stock_quote_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);

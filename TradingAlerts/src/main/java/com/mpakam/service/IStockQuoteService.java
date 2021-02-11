@@ -37,4 +37,11 @@ public interface IStockQuoteService {
 
 	void analyzeStockFromAlphaVantage(Stock symbol) throws Exception;
 
+	/**Retrieves the StockQuotes from yahoo API and applies the analyze stock logic
+	 * @param list
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	public void analyzeStockYahooAPI(List<MonitoredStock> list) throws InterruptedException, ExecutionException;
+
 }
