@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.mpakam.dao.MonitoredStockDao;
 import com.mpakam.dao.StockQuoteDao;
+import com.mpakam.dao.TechAnalysisStratDao;
 import com.mpakam.model.MonitoredStock;
 import com.mpakam.model.StockQuote;
 import com.mpakam.service.TechAnalysisTheStratService;
@@ -25,6 +26,7 @@ public class TestTechAnalysisTheStratService {
 	@Autowired
 	MonitoredStockDao mStockDao;
 	
+	
 	private Set<StockQuote> getStockQuote() {
 		List<MonitoredStock> list = mStockDao.retrievegetActivelyMonitoredStocks();
 		MonitoredStock ms = list.get(0); // not a good practice.
@@ -38,8 +40,10 @@ public class TestTechAnalysisTheStratService {
 		Set<StockQuote> sqSet = getStockQuote();
 		StockQuote lastSq=null;
 		for(StockQuote currentSq : sqSet) {
-			stratService.analyze(currentSq,lastSq);			
+			stratService.createStrat(currentSq,lastSq);			
 			lastSq = currentSq;
 		}
+		//TODO: Add a known Day's Candle ID Validition
 	}
+	
 }

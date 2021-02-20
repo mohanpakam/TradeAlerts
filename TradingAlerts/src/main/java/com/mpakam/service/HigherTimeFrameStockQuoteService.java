@@ -82,13 +82,11 @@ public class HigherTimeFrameStockQuoteService {
 	 * @return Weekly StockQuote
 	 */
 	public StockQuote getWeekly(StockQuote dailySQ, Set<StockQuote> sqSet) {
-		// TODO:
-		// 1. Check to see if the Weekly exists in DB.
-		// 2. If it doesn't exist, then find the SQs from Start of the Week and current
-		// DailySQ's QuoteDatetime stocks
-		// 3. If current DailySQ is for day of the week, then Calculate the Weekly SQ
-		// and save it the DB.
-		return null;
+		LocalDate date =dailySQ.getQuoteDatetime().toLocalDate();
+		System.out.println("Date = " + date);
+		final LocalDate start = DateUtil.startOfWeek(date);
+
+		return aggregateStockQuote(dailySQ, sqSet, start, date);
 	}
 
 	/**
@@ -98,13 +96,10 @@ public class HigherTimeFrameStockQuoteService {
 	 * @return Monthly StockQuote
 	 */
 	public StockQuote getMonthly(StockQuote dailySQ, Set<StockQuote> sqSet) {
-		// TODO:
-		// 1. Check to see if the Monthly exists in DB.
-		// 2. If it doesn't exist, then find the SQs from Start of the Month and current
-		// DailySQ's QuoteDatetime stocks
-		// 3. If current DailySQ is for the last day of the month , then Calculate the
-		// Monthly SQ and save it the DB.
-		return null;
+		LocalDate date = dailySQ.getQuoteDatetime().toLocalDate();
+		System.out.println("Date = " + date);
+		final LocalDate start = DateUtil.firstDayOfMonth(date);
+		return aggregateStockQuote(dailySQ, sqSet, start, date);
 	}
 
 }

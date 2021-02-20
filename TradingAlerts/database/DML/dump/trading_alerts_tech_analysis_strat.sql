@@ -26,7 +26,9 @@ DROP TABLE IF EXISTS `tech_analysis_strats`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `tech_analysis_strats` (
   `sq_strat_id` int NOT NULL,
-  `strat_id` varchar(3) DEFAULT NULL,
+  `candle_color_id` int,
+  `direction_id` int,
+  `candle_id` int,
   `stock_quote_id` int DEFAULT NULL,
   PRIMARY KEY (`sq_strat_id`),
   KEY `stock_quote_id_fk_strat_idx` (`stock_quote_id`),

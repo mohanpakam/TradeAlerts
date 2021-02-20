@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mpakam.dao.MonitoredStockDao;
 import com.mpakam.model.MonitoredStock;
@@ -18,6 +19,7 @@ public class MonitoredStockService  implements IMonitoredStockService{
 	@Autowired
 	IStockQuoteService quoteSvc;
 	
+	@Transactional
 	public void loadMonitoredStockHistory() throws InterruptedException, ExecutionException {
 		List<MonitoredStock> list =mStockDao.retrievegetActivelyMonitoredStocks();
         quoteSvc.analyzeStockYahooAPI(list);

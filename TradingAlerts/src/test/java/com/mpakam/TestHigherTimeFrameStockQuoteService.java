@@ -17,7 +17,7 @@ import com.mpakam.service.HigherTimeFrameStockQuoteService;
 public class TestHigherTimeFrameStockQuoteService {
 	
 	@Autowired
-	private HigherTimeFrameStockQuoteService stratService;
+	private HigherTimeFrameStockQuoteService higherTFSvc;
 	
 	@Autowired
 	private StockQuoteDao quoteDao;
@@ -31,7 +31,7 @@ public class TestHigherTimeFrameStockQuoteService {
 		list.forEach(ms->{
 			StockQuote sq = quoteDao.findLastStockQuote(ms.getStock());
 			Set<StockQuote> sqSet = quoteDao.findAllSetByStock(ms.getStock());
-			stratService.getFinalWeekly(sq, sqSet);
+			higherTFSvc.getFinalWeekly(sq, sqSet);
 		});
 	}
 	
@@ -41,7 +41,7 @@ public class TestHigherTimeFrameStockQuoteService {
 		list.forEach(ms->{
 			StockQuote sq = quoteDao.findLastStockQuote(ms.getStock());
 			Set<StockQuote> sqSet = quoteDao.findAllSetByStock(ms.getStock());
-			stratService.getFinalMonthly(sq, sqSet);	
+			higherTFSvc.getFinalMonthly(sq, sqSet);	
 		});
 	}
 }

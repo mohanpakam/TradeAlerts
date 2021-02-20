@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 	@NamedNativeQuery(name = "TechAnalysisStrat.retrieveLastByStockNum",  resultClass=TechAnalysisStrat.class,
 		query = "select taa.* from tech_analysis_strats taa join stock_quotes sq on (sq.stock_quote_id= taa.stock_quote_id) where stocknum = :stockNum order by sq.quote_datetime desc limit 1 ")
 	,
-		@NamedNativeQuery(name = "TechAnalysisStrat.retrieveStrat ByStockQuote",  resultClass=TechAnalysisStrat.class,
+		@NamedNativeQuery(name = "TechAnalysisStrat.retrieveStratByStockQuote",  resultClass=TechAnalysisStrat.class,
 		query = "select taa.* from tech_analysis_strats taa join stock_quotes sq on (sq.stock_quote_id= taa.stock_quote_id) where sq.stock_quote_id = :stockQuoteId order by sq.quote_datetime desc limit 1 ")
 	}	)
 public class TechAnalysisStrat implements Serializable {
@@ -30,8 +30,14 @@ public class TechAnalysisStrat implements Serializable {
 	@Column(name="sq_strat_id", unique=true, nullable=false)
 	private int sqStratId;
 
-	@Column(name="strat_id")
-	private String stratId;
+	@Column(name="direction_id")
+	private int directionId;
+
+	@Column(name="candle_color_id")
+	private int candleColor;
+	
+	@Column(name="candle_id")
+	private int candleId;
 
 	//bi-directional many-to-one association to StockQuote2
 	@ManyToOne
@@ -49,20 +55,36 @@ public class TechAnalysisStrat implements Serializable {
 		this.sqStratId = sqStratId;
 	}
 
-	public String getStratId() {
-		return this.stratId;
-	}
-
-	public void setStratId(String stratId) {
-		this.stratId = stratId;
-	}	
-
 	public StockQuote getStockQuote() {
 		return this.stockQuote;
 	}
 
 	public void setStockQuote(StockQuote stockQuote) {
 		this.stockQuote = stockQuote;
+	}
+
+	public int getDirectionId() {
+		return directionId;
+	}
+
+	public void setDirectionId(int directionId) {
+		this.directionId = directionId;
+	}
+
+	public int getCandleColor() {
+		return candleColor;
+	}
+
+	public void setCandleColor(int candleColor) {
+		this.candleColor = candleColor;
+	}
+
+	public int getCandleId() {
+		return candleId;
+	}
+
+	public void setCandleId(int candleId) {
+		this.candleId = candleId;
 	}
 
 }

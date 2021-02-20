@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import com.mpakam.constants.Interval;
 import com.mpakam.model.Stock;
 import com.mpakam.model.StockQuote;
 
@@ -25,6 +26,8 @@ public interface StockQuoteDao {
 	
 	Set<StockQuote> findAllSetByStock(Stock stock);
 	
-	
-	
+	Set<StockQuote> findAllDailySetByStock(Stock stock);
+	Set<StockQuote> findAllWeeklySetByStock(Stock stock);
+	Set<StockQuote> findAllMonthlySetByStock(Stock stock);
+	Set<StockQuote> findAllSetByStock(Stock stock, Interval i);	
 }

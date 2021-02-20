@@ -42,7 +42,7 @@ public class YahooFinanceAPIService {
 					StockQuote sq = new StockQuote();
 	        		sq.setClose(q.getClose());
 	        		sq.setHigh(q.getHigh());
-	        		sq.setInterval(480);
+	        		sq.setInterval(com.mpakam.constants.Interval.DAILY.getInterval());
 	        		sq.setLow(q.getLow());
 	        		sq.setOpen(q.getOpen());
 
@@ -69,7 +69,7 @@ public class YahooFinanceAPIService {
 		}else
 			date = sq.getQuoteDatetime();
 		return new GregorianCalendar.Builder()
-		.setDate(date.getYear(), date.getMonthValue(), date.getDayOfMonth())
+		.setDate(date.getYear(), date.getMonthValue()-1, date.getDayOfMonth())
 		.build();
 	}
 }

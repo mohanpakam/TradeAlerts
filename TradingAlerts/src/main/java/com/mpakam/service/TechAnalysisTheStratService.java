@@ -1,12 +1,36 @@
 package com.mpakam.service;
 
+import java.util.LinkedList;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.mpakam.constants.BackTestOrder;
+import com.mpakam.constants.CandleColor;
+import com.mpakam.constants.StratDirection;
+import com.mpakam.constants.StratIdentifier;
+import com.mpakam.dao.MonitoredStockDao;
+import com.mpakam.dao.StockQuoteDao;
+import com.mpakam.dao.TechAnalysisStratDao;
+import com.mpakam.model.MonitoredStock;
 import com.mpakam.model.StockQuote;
 import com.mpakam.model.TechAnalysisStrat;
 
 @Service
 public class TechAnalysisTheStratService {
+	
+	@Autowired
+	private StockQuoteDao quoteDao;
+	
+	@Autowired
+	MonitoredStockDao mStockDao;
+	
+	@Autowired
+	private HigherTimeFrameStockQuoteService higherTFSvc;
+	
+	@Autowired
+	private TechAnalysisStratDao stratDao;
 	
 	//TODO: 
 	//1. Calculate the Candle IDs and save them 
@@ -19,23 +43,23 @@ public class TechAnalysisTheStratService {
 	// f. 2-3
 	// g. 3-2
 	//3. considers the higher Time Frames to determine the above Strats
-	public TechAnalysisStrat analyze(StockQuote currentQuote, StockQuote lastQuote) {
+	public TechAnalysisStrat createStrat(StockQuote currentQuote, StockQuote lastQuote) {
 		
+		//TODO: 
+		/*1. Saves the Strat entries for all days
+		 * 2. creates and udpates the Week with in the same Week
+		 * 3. creates and udpates the Monthly with in the same Month 
+		 */
+
 		TechAnalysisStrat strat = new TechAnalysisStrat();
 		strat.setStockQuote(currentQuote);
-		strat.setStratId(getStratId(currentQuote,lastQuote));
-		
-		return strat;
-	}
-	
-	private String getStratId(StockQuote currentQuote, StockQuote lastQuote) {
-		
-		String candleColor = currentQuote.getOpen().compareTo(currentQuote.getClose()) != -1 ? "r" : "g";
-		
+		strat.setDirectionId(StratDirection.NONE.getDirectionId());
+		CandleColor candleColor = currentQuote.getOpen().compareTo(currentQuote.getClose()) != -1 ? CandleColor.RED: CandleColor.GREEN;
+		strat.setCandleColor(candleColor.getColorId());
 		if(lastQuote == null) {
-			return "1" + candleColor;
+			strat.setCandleId(StratIdentifier.ONE.getStratId());
+			return strat;
 		}
-				
 		
 		// def insideBar = high < high[1] and low > low[1];
 		// def outsideBar = high > high[1] and low < low[1];
@@ -47,21 +71,63 @@ public class TechAnalysisTheStratService {
 		// Current high is less than or equal to previous high
 		// Current Low is greater than or equal to preiouv low then 1
 		if (highComp <= 0 && lowComp >= 0) {
-			stratId = "1" + candleColor;
+			strat.setCandleId(StratIdentifier.ONE.getStratId());
 		}
 		// Current high is greater than to previous high
 		// Current Low is lower than to previous low then 3
 		else if (highComp == 1 && lowComp == -1) {
-
-			stratId = "3" + candleColor;
+			strat.setCandleId(StratIdentifier.THREE.getStratId());
 		} else {
-			String color = highComp == 1?"U":"D";
-					
-			stratId = "2" + color + candleColor;
+//			String color = highComp == 1?"U":"D";
+			strat.setDirectionId(highComp == 1?StratDirection.UP.getDirectionId():StratDirection.DOWN.getDirectionId());
+			strat.setCandleId(StratIdentifier.TWO.getStratId());
 		}
-		System.out.println("CQ- High:"+currentQuote.getHigh() + ";Low:"+currentQuote.getLow() + ";Open:"+currentQuote.getOpen() + ";Close:"+ currentQuote.getLow());
-		System.out.println("LQ- High:"+lastQuote.getHigh() + ";Low:"+lastQuote.getLow() );
-		System.out.println(currentQuote.getStock().getTicker() +"-"+currentQuote.getQuoteDatetime() + "Strat ID:" + stratId);
-		return stratId;
+		System.out.println(currentQuote.getStock().getTicker() +"-"+currentQuote.getQuoteDatetime() + "Strat ID:" + strat.getCandleId() +strat.getDirectionId()+strat.getCandleColor());
+		return strat;
 	}
+	
+	public void backTestMonitoredStock(MonitoredStock ms) {
+		//TODO:
+		//1. Retrieves the Stock Quotes for Daily, creates Weekly, Monthly 
+		//2. Assigns candle ID for Each
+		//3 . Checks for Various conditions and creates backtest orders
+		
+		// Retrieves all Stock quotes that may include Daily, Weekly and Monthly.
+		Set<StockQuote> dailySQs = quoteDao.findAllDailySetByStock(ms.getStock());
+		
+		LinkedList<TechAnalysisStrat> stratList = new LinkedList<TechAnalysisStrat>();
+		
+		//Create Stock Quotes for Daily Check if Weekly, Monthly exists
+		StockQuote lastSq = null;
+		for(StockQuote sq: dailySQs) {
+			//Try to get the Weekly SQs
+			StockQuote weeklySQ = higherTFSvc.getWeekly(sq, dailySQs);
+			StockQuote monthlySQ = higherTFSvc.getWeekly(sq, dailySQs);
+			TechAnalysisStrat strat = createStrat(sq,lastSq);
+			stratDao.save(strat); //TODO: This would need to be further refined.
+			stratList.add(strat);
+			
+			lastSq=sq;
+		}
+		
+	}
+	
+	private BackTestOrder checkForStrategy(TechAnalysisStrat todayStrat,LinkedList<TechAnalysisStrat> stratList,
+			StockQuote weeklySq, StockQuote monthlySQ) {
+		TechAnalysisStrat yesterdayStrat = yesterdayStrat(todayStrat,stratList);
+		TechAnalysisStrat dayBeforeYesterdayStrat = dayBeforeYesterdayStrat(todayStrat,stratList);
+		//TODO: Check for weekly and Monthly colors
+		return BackTestOrder.NONE;
+	}
+	
+	private TechAnalysisStrat yesterdayStrat(TechAnalysisStrat strat,LinkedList<TechAnalysisStrat> stratList){
+		int idx = stratList.indexOf(strat);
+		return stratList.get(idx > 1?idx-1:idx);
+	}
+	
+	private TechAnalysisStrat dayBeforeYesterdayStrat(TechAnalysisStrat strat,LinkedList<TechAnalysisStrat> stratList){
+		int idx = stratList.indexOf(strat);
+		return stratList.get(idx > 2?idx-2:idx);
+	}
+	
 }

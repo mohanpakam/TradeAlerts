@@ -18,7 +18,7 @@ public enum Interval {
         this.tag = tag;
     }
     
-    public int getTag() {
+    public int getInterval() {
         return this.tag;
     }
 }

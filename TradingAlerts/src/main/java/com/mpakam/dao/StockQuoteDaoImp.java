@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.mpakam.constants.Interval;
 import com.mpakam.model.Stock;
 import com.mpakam.model.StockQuote;
 import com.mpakam.util.BigDecimalUtil;
@@ -108,6 +109,28 @@ public class StockQuoteDaoImp implements StockQuoteDao {
 				.setInteger("stockNum", stock.getStocknum())
 				.setInteger("interval", stock.getInterval());
 		return  new TreeSet<StockQuote>(query.list());
+	}
+	
+	@Override
+	public Set<StockQuote> findAllSetByStock(Stock stock, Interval i) {
+		Query query = sessionFactory.getCurrentSession().getNamedQuery("StockQuote.findAllByStock")
+				.setInteger("stockNum", stock.getStocknum())
+				.setInteger("interval", i.getInterval());
+		return  new TreeSet<StockQuote>(query.list());
+	}
+	
+	@Override
+	public Set<StockQuote> findAllDailySetByStock(Stock stock) {
+		return findAllSetByStock(stock, Interval.DAILY);
+	}
+	@Override
+	public Set<StockQuote> findAllWeeklySetByStock(Stock stock) {
+		return findAllSetByStock(stock, Interval.WEEKLY);
+	}
+	
+	@Override
+	public Set<StockQuote> findAllMonthlySetByStock(Stock stock) {
+		return findAllSetByStock(stock, Interval.MONTHLY);
 	}
 
 }
