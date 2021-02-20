@@ -411,5 +411,4 @@ public class StockQuoteService implements IStockQuoteService {
 		return ;
 		
 	}
-    
 }

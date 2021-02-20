@@ -15,7 +15,7 @@ import com.mpakam.service.TechAnalysisTheStratService;
 
 @SpringBootTest
 public class TestTechAnalysisTheStratService {
-	
+
 	@Autowired
 	private TechAnalysisTheStratService stratService;
 	
@@ -24,26 +24,22 @@ public class TestTechAnalysisTheStratService {
 	
 	@Autowired
 	MonitoredStockDao mStockDao;
-
-	@Test
-	public void test_getWeekly() {
-		List<MonitoredStock> list =mStockDao.retrievegetActivelyMonitoredStocks();
-		list.forEach(ms->{
-			StockQuote sq = quoteDao.findLastStockQuote(ms.getStock());
-			Set<StockQuote> sqSet = quoteDao.findAllSetByStock(ms.getStock());
-			stratService.getWeekly(sq, sqSet);
-		});
-		
+	
+	private Set<StockQuote> getStockQuote() {
+		List<MonitoredStock> list = mStockDao.retrievegetActivelyMonitoredStocks();
+		MonitoredStock ms = list.get(0); // not a good practice.
+		//StockQuote sq = quoteDao.findLastStockQuote(ms.getStock());
+		Set<StockQuote> sqSet = quoteDao.findAllSetByStock(ms.getStock());
+		return sqSet;
 	}
 	
 	@Test
-	public void test_getMonthly() {
-		List<MonitoredStock> list =mStockDao.retrievegetActivelyMonitoredStocks();
-		list.forEach(ms->{
-			StockQuote sq = quoteDao.findLastStockQuote(ms.getStock());
-			Set<StockQuote> sqSet = quoteDao.findAllSetByStock(ms.getStock());
-			stratService.getMonthly(sq, sqSet);	
-		});
-		
+	public void test_analysis() {
+		Set<StockQuote> sqSet = getStockQuote();
+		StockQuote lastSq=null;
+		for(StockQuote currentSq : sqSet) {
+			stratService.analyze(currentSq,lastSq);			
+			lastSq = currentSq;
+		}
 	}
 }

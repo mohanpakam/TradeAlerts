@@ -1,104 +1,67 @@
 package com.mpakam.service;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.Set;
-import java.util.SortedSet;
-
 import org.springframework.stereotype.Service;
 
 import com.mpakam.model.StockQuote;
+import com.mpakam.model.TechAnalysisStrat;
 
 @Service
 public class TechAnalysisTheStratService {
+	
+	//TODO: 
+	//1. Calculate the Candle IDs and save them 
+	//2. Set alerts for the following Strategies if not backtesting.
+	// a. 122 RevStrat2
+	// b. 123 RevStrat3
+	// c. 1-2
+	// d. 1-3
+	// e. 2-2
+	// f. 2-3
+	// g. 3-2
+	//3. considers the higher Time Frames to determine the above Strats
+	public TechAnalysisStrat analyze(StockQuote currentQuote, StockQuote lastQuote) {
+		
+		TechAnalysisStrat strat = new TechAnalysisStrat();
+		strat.setStockQuote(currentQuote);
+		strat.setStratId(getStratId(currentQuote,lastQuote));
+		
+		return strat;
+	}
+	
+	private String getStratId(StockQuote currentQuote, StockQuote lastQuote) {
+		
+		String candleColor = currentQuote.getOpen().compareTo(currentQuote.getClose()) != -1 ? "r" : "g";
+		
+		if(lastQuote == null) {
+			return "1" + candleColor;
+		}
+				
+		
+		// def insideBar = high < high[1] and low > low[1];
+		// def outsideBar = high > high[1] and low < low[1];
+		// plot barType = if insideBar then 1 else if outsideBar then 3 else 2;
+		int highComp = currentQuote.getHigh().compareTo(lastQuote.getHigh());
+		int lowComp = currentQuote.getLow().compareTo(lastQuote.getLow());
+		String stratId = null;
 
-	
-	/** Makes up the Weekly the StockQuote from the given StockQuote Set
-	 * @param sq
-	 * @return
-	 */
-	public StockQuote getWeekly(StockQuote sq, Set<StockQuote> sqSet) {
-		
-		LocalDate date = sq.getQuoteDatetime().toLocalDate();
-	      System.out.println("Date = " + date);
-	      final LocalDate start = startOfWeek(date);
-	      
-	      LocalDate end = endOfWeek(date);
-		 return aggregateStockQuote(sq, sqSet,start,end);
+		// Current high is less than or equal to previous high
+		// Current Low is greater than or equal to preiouv low then 1
+		if (highComp <= 0 && lowComp >= 0) {
+			stratId = "1" + candleColor;
+		}
+		// Current high is greater than to previous high
+		// Current Low is lower than to previous low then 3
+		else if (highComp == 1 && lowComp == -1) {
+
+			stratId = "3" + candleColor;
+		} else {
+			String color = highComp == 1?"U":"D";
+					
+			stratId = "2" + color + candleColor;
+		}
+		System.out.println("CQ- High:"+currentQuote.getHigh() + ";Low:"+currentQuote.getLow() + ";Open:"+currentQuote.getOpen() + ";Close:"+ currentQuote.getLow());
+		System.out.println("LQ- High:"+lastQuote.getHigh() + ";Low:"+lastQuote.getLow() );
+		System.out.println(currentQuote.getStock().getTicker() +"-"+currentQuote.getQuoteDatetime() + "Strat ID:" + stratId);
+		return stratId;
 	}
-	
-	public StockQuote getMonthly(StockQuote sq, Set<StockQuote> sqSet) {
-		
-		LocalDate date = sq.getQuoteDatetime().toLocalDate();
-	      System.out.println("Date = " + date);
-	      final LocalDate start = firstDayOfMonth(date);
-	      
-	      LocalDate end = lastDayOfMonth(date);
-	      
-	      return aggregateStockQuote(sq, sqSet,start,end);
-	}
-	
-	private StockQuote aggregateStockQuote(StockQuote sq, Set<StockQuote> sqSet, LocalDate startDate, LocalDate endDate) {
-		StockQuote aggregateSq = new StockQuote(sq);
-	      
-	      System.out.println("End of the Week = " + endDate);
-	      
-		 sqSet.stream().filter(m->startDate.isBefore(m.getQuoteDatetime().toLocalDate()) 
-						&& endDate.isAfter(m.getQuoteDatetime().toLocalDate())).forEach(tsq->{
-							//open
-							System.out.println(tsq.getQuoteDatetime() + "-Open:" +tsq.getOpen() 
-							+ "-Close:"+ tsq.getClose()
-							+ "-High:"+ tsq.getHigh()
-							+ "-Low:"+ tsq.getLow()
-							);
-							if(aggregateSq.getOpen() == null) {
-								aggregateSq.setOpen(tsq.getOpen());
-								aggregateSq.setQuoteDatetime(tsq.getQuoteDatetime());
-							}
-							//high
-							if(aggregateSq.getHigh().compareTo(tsq.getHigh()) == -1) {
-								aggregateSq.setHigh(tsq.getHigh()); //High of the Week
-							}
-							//low
-							if(aggregateSq.getLow().compareTo(tsq.getLow())==1) {
-								aggregateSq.setLow(tsq.getLow()); //High of the Week
-							}
-							//close
-							aggregateSq.setClose(tsq.getClose());
-						});
-		 System.out.println(aggregateSq.getQuoteDatetime() + "-Open:" +aggregateSq.getOpen() 
-			+ "-Close:"+ aggregateSq.getClose()
-			+ "-High:"+ aggregateSq.getHigh()
-			+ "-Low:"+ aggregateSq.getLow()
-			);
-		 return aggregateSq;
-	}
-	
-	private LocalDate startOfWeek(LocalDate start) {
-		while (start.getDayOfWeek() != DayOfWeek.SUNDAY) {
-	         start = start.minusDays(1);
-	    }
-		return start;
-	}
-	private LocalDate endOfWeek(LocalDate end) {
-		while (end.getDayOfWeek() != DayOfWeek.SATURDAY) {
-	         end = end.plusDays(1);
-	      }
-		return end;
-	}
-	
-	private LocalDate firstDayOfMonth(LocalDate start) {
-		while (start.getDayOfMonth() != 1) {
-	         start = start.minusDays(1);
-	    }
-		return start.minusDays(1); // Last Day of Last Month
-	}
-	
-	private LocalDate lastDayOfMonth(LocalDate end) {
-		while (end.getDayOfMonth() != end.lengthOfMonth()) {
-	         end = end.plusDays(1);
-	      }
-		return end;
-	}
-	
 }

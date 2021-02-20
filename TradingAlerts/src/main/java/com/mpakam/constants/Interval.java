@@ -1,25 +1,24 @@
 package com.mpakam.constants;
 
 public enum Interval {
+	MIN1(1),
+	MIN10(2),
+	MIN15(3),	
+	MIN30(4),
+	HOURLY(5),
+	DAILY(6),
+	WEEKLY(7),
+	MONTHLY(8),
+	QUARTERLY(9),
+	YEARLY(10);
 	
-	DAILY("1D"),
-	WEEKLY("1W"),
-	MONTHLY("1M"),
-	QUARTERLY("1Q"),
-	YEARLY("1Y"),
-	HOURLY("1h"),
-	MIN15("15min"),
-	MIN1("1min"),
-	MIN10("10min"),
-	MIN30("30min");
-	
-	private final String tag;
+	private final int tag;
     
-    Interval(String tag) {
+    Interval(int tag) {
         this.tag = tag;
     }
     
-    public String getTag() {
+    public int getTag() {
         return this.tag;
     }
 }
