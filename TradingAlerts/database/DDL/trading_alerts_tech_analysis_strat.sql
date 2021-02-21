@@ -18,35 +18,31 @@ USE `trading_alerts`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `renko_charts`
+-- Table structure for table `tech_analysis_strats`
 --
 
-DROP TABLE IF EXISTS `renko_charts`;
+DROP TABLE IF EXISTS `tech_analysis_strats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `renko_charts` (
-  `renko_box_id` int NOT NULL AUTO_INCREMENT,
-  `stocknum` int NOT NULL,
-  `stock_quote_id` int NOT NULL,
-  `open_price` decimal(10,2) DEFAULT NULL,
-  `close_price` decimal(10,2) DEFAULT NULL,
-  `entry_datetime` datetime DEFAULT CURRENT_TIMESTAMP,
-  `ema_14_price` decimal(10,2) DEFAULT NULL,
-  PRIMARY KEY (`renko_box_id`),
-  KEY `FK_renko_charts_1` (`stocknum`) USING BTREE,
-  KEY `FK_renko_charts_2` (`stock_quote_id`) USING BTREE,
-  CONSTRAINT `FK_renko_charts_1` FOREIGN KEY (`stocknum`) REFERENCES `stocks` (`stocknum`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `FK_renko_charts_2` FOREIGN KEY (`stock_quote_id`) REFERENCES `stock_quotes` (`stock_quote_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+CREATE TABLE `tech_analysis_strats` (
+  `sq_strat_id` int NOT NULL AUTO_INCREMENT,
+  `candle_color_id` int,
+  `direction_id` int,
+  `candle_id` int,
+  `stock_quote_id` int DEFAULT NULL,
+  PRIMARY KEY (`sq_strat_id`),
+  KEY `stock_quote_id_fk_strat_idx` (`stock_quote_id`),
+  CONSTRAINT `stock_quote_strat_id_fk` FOREIGN KEY (`stock_quote_id`) REFERENCES `stock_quotes` (`stock_quote_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `renko_charts`
+-- Dumping data for table `tech_analysis_strats`
 --
 
-LOCK TABLES `renko_charts` WRITE;
-/*!40000 ALTER TABLE `renko_charts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `renko_charts` ENABLE KEYS */;
+LOCK TABLES `tech_analysis_strats` WRITE;
+/*!40000 ALTER TABLE `tech_analysis_strats` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tech_analysis_strats` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -58,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-11  7:00:20
+-- Dump completed on 2021-02-11  7:00:16

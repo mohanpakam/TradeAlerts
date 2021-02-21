@@ -6,7 +6,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mpakam.constants.BackTestOrder;
 import com.mpakam.constants.CandleColor;
 import com.mpakam.constants.StratDirection;
 import com.mpakam.constants.StratIdentifier;
@@ -16,6 +15,7 @@ import com.mpakam.dao.TechAnalysisStratDao;
 import com.mpakam.model.MonitoredStock;
 import com.mpakam.model.StockQuote;
 import com.mpakam.model.TechAnalysisStrat;
+import com.mpakam.service.strategy.strat.TheStratService;
 
 @Service
 public class TechAnalysisTheStratService {
@@ -31,6 +31,9 @@ public class TechAnalysisTheStratService {
 	
 	@Autowired
 	private TechAnalysisStratDao stratDao;
+	
+	@Autowired
+	private TheStratService stratSvc;
 	
 	//TODO: 
 	//1. Calculate the Candle IDs and save them 
@@ -54,7 +57,8 @@ public class TechAnalysisTheStratService {
 		TechAnalysisStrat strat = new TechAnalysisStrat();
 		strat.setStockQuote(currentQuote);
 		strat.setDirectionId(StratDirection.NONE.getDirectionId());
-		CandleColor candleColor = currentQuote.getOpen().compareTo(currentQuote.getClose()) != -1 ? CandleColor.RED: CandleColor.GREEN;
+		CandleColor candleColor = stratSvc.getCandleColor(currentQuote);
+		
 		strat.setCandleColor(candleColor.getColorId());
 		if(lastQuote == null) {
 			strat.setCandleId(StratIdentifier.ONE.getStratId());
@@ -102,32 +106,14 @@ public class TechAnalysisTheStratService {
 		for(StockQuote sq: dailySQs) {
 			//Try to get the Weekly SQs
 			StockQuote weeklySQ = higherTFSvc.getWeekly(sq, dailySQs);
-			StockQuote monthlySQ = higherTFSvc.getWeekly(sq, dailySQs);
+			StockQuote monthlySQ = higherTFSvc.getMonthly(sq, dailySQs);
 			TechAnalysisStrat strat = createStrat(sq,lastSq);
 			stratDao.save(strat); //TODO: This would need to be further refined.
 			stratList.add(strat);
-			
+			stratSvc.backTestStrat(strat,stratList,weeklySQ,monthlySQ,dailySQs);
 			lastSq=sq;
 		}
 		
-	}
-	
-	private BackTestOrder checkForStrategy(TechAnalysisStrat todayStrat,LinkedList<TechAnalysisStrat> stratList,
-			StockQuote weeklySq, StockQuote monthlySQ) {
-		TechAnalysisStrat yesterdayStrat = yesterdayStrat(todayStrat,stratList);
-		TechAnalysisStrat dayBeforeYesterdayStrat = dayBeforeYesterdayStrat(todayStrat,stratList);
-		//TODO: Check for weekly and Monthly colors
-		return BackTestOrder.NONE;
-	}
-	
-	private TechAnalysisStrat yesterdayStrat(TechAnalysisStrat strat,LinkedList<TechAnalysisStrat> stratList){
-		int idx = stratList.indexOf(strat);
-		return stratList.get(idx > 1?idx-1:idx);
-	}
-	
-	private TechAnalysisStrat dayBeforeYesterdayStrat(TechAnalysisStrat strat,LinkedList<TechAnalysisStrat> stratList){
-		int idx = stratList.indexOf(strat);
-		return stratList.get(idx > 2?idx-2:idx);
 	}
 	
 }

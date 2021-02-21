@@ -93,7 +93,7 @@ public class StockQuote implements Serializable, Comparable<StockQuote> {
 		this.close= sq.close;
 		this.high = sq.high;
 		this.low = sq.low;
-//		this.open = sq.open; do not set the Open to help in the aggregate StockQuotes like Weekly
+		this.open = sq.open; //do not set the Open to help in the aggregate StockQuotes like Weekly
 		this.stock = sq.stock;
 	}
 

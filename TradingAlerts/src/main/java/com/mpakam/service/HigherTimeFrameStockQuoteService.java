@@ -55,7 +55,7 @@ public class HigherTimeFrameStockQuoteService {
 					// open
 					System.out.println(tsq.getQuoteDatetime() + "-Open:" + tsq.getOpen() + "-Close:" + tsq.getClose()
 							+ "-High:" + tsq.getHigh() + "-Low:" + tsq.getLow());
-					if (aggregateSq.getOpen() == null) {
+					if (aggregateSq.getQuoteDatetime() == null) {
 						aggregateSq.setOpen(tsq.getOpen());
 						aggregateSq.setQuoteDatetime(tsq.getQuoteDatetime());
 					}
@@ -70,6 +70,10 @@ public class HigherTimeFrameStockQuoteService {
 					// close
 					aggregateSq.setClose(tsq.getClose());
 				});
+		
+		if (aggregateSq.getQuoteDatetime() == null) 
+			aggregateSq.setQuoteDatetime(sq.getQuoteDatetime());
+		
 		System.out.println(aggregateSq.getQuoteDatetime() + "-Open:" + aggregateSq.getOpen() + "-Close:"
 				+ aggregateSq.getClose() + "-High:" + aggregateSq.getHigh() + "-Low:" + aggregateSq.getLow());
 		return aggregateSq;
