@@ -21,4 +21,13 @@ public enum Interval {
     public int getInterval() {
         return this.tag;
     }
+    public static Interval valueOfLabel(int tag) {
+	    for (Interval e : values()) {
+	        if (e.tag == tag) {
+	            return e;
+	        }
+	    }
+	    return null;
+	}
+   
 }

@@ -15,4 +15,12 @@ public enum StratDirection {
 		return directionId;
 	}
 	
+	public static StratDirection valueOfLabel(int directionId) {
+	    for (StratDirection e : values()) {
+	        if (e.directionId == directionId) {
+	            return e;
+	        }
+	    }
+	    return null;
+	}
 }

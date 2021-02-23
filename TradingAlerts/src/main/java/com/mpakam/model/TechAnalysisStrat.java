@@ -3,7 +3,7 @@ package com.mpakam.model;
 import java.io.Serializable;
 import javax.persistence.*;
 
-import com.mpakam.constants.StratIdentifier;
+import com.mpakam.constants.StratCandleIdentifier;
 
 import java.math.BigDecimal;
 

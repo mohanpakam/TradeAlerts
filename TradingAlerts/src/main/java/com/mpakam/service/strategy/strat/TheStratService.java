@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import com.mpakam.constants.BackTestOrder;
 import com.mpakam.constants.CandleColor;
 import com.mpakam.constants.StratDirection;
-import com.mpakam.constants.StratIdentifier;
+import com.mpakam.constants.StratCandleIdentifier;
 import com.mpakam.dao.BacktestStockOrderDao;
 import com.mpakam.exception.BackTestOrderCreatedException;
 import com.mpakam.model.BacktestStockOrder;
@@ -43,7 +43,7 @@ public class TheStratService {
 		TechAnalysisStrat yesterdayStrat = yesterdayStrat(todayStrat,stratList);
 		TechAnalysisStrat dayBeforeYesterdayStrat = dayBeforeYesterdayStrat(todayStrat,stratList);
 		
-		if(todayStrat.getCandleId() == StratIdentifier.TWO.getStratId()) {
+		if(todayStrat.getCandleId() == StratCandleIdentifier.TWO.getStratId()) {
 			//Calls strategies for 2
 			try {
 				//check 122
@@ -52,7 +52,7 @@ public class TheStratService {
 				
 			}
 			
-		}else if(todayStrat.getCandleId() == StratIdentifier.THREE.getStratId()) {
+		}else if(todayStrat.getCandleId() == StratCandleIdentifier.THREE.getStratId()) {
 			//Calls strategies for 3
 		}
 		
@@ -105,9 +105,9 @@ public class TheStratService {
 	
 	private void checkFor122(TechAnalysisStrat todayStrat, TechAnalysisStrat yesterdayStrat,
 			TechAnalysisStrat dayBeforeYesterdayStrat, StockQuote weeklySq, StockQuote monthlySq) {
-		if(yesterdayStrat.getCandleId() !=  StratIdentifier.TWO.getStratId())
+		if(yesterdayStrat.getCandleId() !=  StratCandleIdentifier.TWO.getStratId())
 			return; //its not 22
-		if(dayBeforeYesterdayStrat.getCandleId() !=  StratIdentifier.ONE.getStratId())
+		if(dayBeforeYesterdayStrat.getCandleId() !=  StratCandleIdentifier.ONE.getStratId())
 			return; //its not 122
 		// Check for Sell - Is this a reversal into FTFC
 		// 1. yesterday's low is the trigger.

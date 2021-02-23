@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.mpakam.constants.CandleColor;
 import com.mpakam.constants.StratDirection;
-import com.mpakam.constants.StratIdentifier;
+import com.mpakam.constants.StratCandleIdentifier;
 import com.mpakam.dao.MonitoredStockDao;
 import com.mpakam.dao.StockQuoteDao;
 import com.mpakam.dao.TechAnalysisStratDao;
@@ -61,7 +61,7 @@ public class TechAnalysisTheStratService {
 		
 		strat.setCandleColor(candleColor.getColorId());
 		if(lastQuote == null) {
-			strat.setCandleId(StratIdentifier.ONE.getStratId());
+			strat.setCandleId(StratCandleIdentifier.ONE.getStratId());
 			return strat;
 		}
 		
@@ -75,18 +75,21 @@ public class TechAnalysisTheStratService {
 		// Current high is less than or equal to previous high
 		// Current Low is greater than or equal to preiouv low then 1
 		if (highComp <= 0 && lowComp >= 0) {
-			strat.setCandleId(StratIdentifier.ONE.getStratId());
+			strat.setCandleId(StratCandleIdentifier.ONE.getStratId());
 		}
 		// Current high is greater than to previous high
 		// Current Low is lower than to previous low then 3
 		else if (highComp == 1 && lowComp == -1) {
-			strat.setCandleId(StratIdentifier.THREE.getStratId());
+			strat.setCandleId(StratCandleIdentifier.THREE.getStratId());
 		} else {
 //			String color = highComp == 1?"U":"D";
 			strat.setDirectionId(highComp == 1?StratDirection.UP.getDirectionId():StratDirection.DOWN.getDirectionId());
-			strat.setCandleId(StratIdentifier.TWO.getStratId());
+			strat.setCandleId(StratCandleIdentifier.TWO.getStratId());
 		}
-		System.out.println(currentQuote.getStock().getTicker() +"-"+currentQuote.getQuoteDatetime() + "Strat ID:" + strat.getCandleId() +strat.getDirectionId()+strat.getCandleColor());
+		System.out.println(currentQuote.getStock().getTicker() + "-" + currentQuote.getQuoteDatetime() +":"
+				+ StratCandleIdentifier.valueOfLabel(strat.getCandleId()).name() +"-" 
+				+ StratDirection.valueOfLabel(strat.getDirectionId()).name() +"-" 
+				+ CandleColor.valueOfLabel(strat.getCandleColor()).name());
 		return strat;
 	}
 	

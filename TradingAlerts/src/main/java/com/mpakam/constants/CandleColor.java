@@ -15,4 +15,13 @@ public enum CandleColor {
 	public int getColorId() {
 		return this.colorId;
 	}
+	
+	public static CandleColor valueOfLabel(int colorId) {
+	    for (CandleColor e : values()) {
+	        if (e.colorId == colorId) {
+	            return e;
+	        }
+	    }
+	    return null;
+	}
 }
