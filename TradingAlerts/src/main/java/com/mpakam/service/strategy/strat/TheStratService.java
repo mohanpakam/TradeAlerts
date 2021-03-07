@@ -55,24 +55,39 @@ public class TheStratService {
 		if(todayStrat.getCandleId() == StratCandleIdentifier.TWO.getStratId()) {
 			//Calls strategies for 2
 			try {
-				if(yesterdayStrat.getCandleId() ==  StratCandleIdentifier.TWO.getStratId())
+				if(yesterdayStrat.getCandleId() ==  StratCandleIdentifier.TWO.getStratId()) {
+					twoCandleStrat(TheStrat._22,todayStrat,yesterdayStrat,weeklySq,monthlySq, dailySQs);
 					if(dayBeforeYesterdayStrat.getCandleId() ==  StratCandleIdentifier.ONE.getStratId())
-					//check 122
-					threeCandleStrat(TheStrat._122,todayStrat,yesterdayStrat,dayBeforeYesterdayStrat,weeklySq,monthlySq, dailySQs);
-//				checkFor122(todayStrat, yesterdayStrat, dayBeforeYesterdayStrat, weeklySq, monthlySq, dailySQs);
+						//check 122
+						twoCandleStrat(TheStrat._122,todayStrat,yesterdayStrat,weeklySq,monthlySq, dailySQs);
+				}else if(yesterdayStrat.getCandleId() ==  StratCandleIdentifier.ONE.getStratId()) {
+					twoCandleStrat(TheStrat._12,todayStrat,yesterdayStrat,weeklySq,monthlySq, dailySQs);
+				}else if(yesterdayStrat.getCandleId() ==  StratCandleIdentifier.THREE.getStratId()) {
+					twoCandleStrat(TheStrat._32,todayStrat,yesterdayStrat,weeklySq,monthlySq, dailySQs);
+				}				
 			}catch(BackTestOrderCreatedException e) {
 				backTestOrder= true;
 			}
 		}else if(todayStrat.getCandleId() == StratCandleIdentifier.THREE.getStratId()) {
 			//Calls strategies for 3
-			try {
-				if(yesterdayStrat.getCandleId() ==  StratCandleIdentifier.TWO.getStratId())
+			/*
+			 * _23(23),
+				_13(13),
+			 */
+			try { 
+				//123
+				if(yesterdayStrat.getCandleId() ==  StratCandleIdentifier.TWO.getStratId()) {
+					twoCandleStrat(TheStrat._23,todayStrat,yesterdayStrat,weeklySq,monthlySq, dailySQs);
 					if(dayBeforeYesterdayStrat.getCandleId() ==  StratCandleIdentifier.ONE.getStratId())
-						threeCandleStrat(TheStrat._123,todayStrat,yesterdayStrat,dayBeforeYesterdayStrat,weeklySq,monthlySq, dailySQs);
+						twoCandleStrat(TheStrat._123,todayStrat,yesterdayStrat,weeklySq,monthlySq, dailySQs);
+				}else if(yesterdayStrat.getCandleId() ==  StratCandleIdentifier.ONE.getStratId()) {
+					twoCandleStrat(TheStrat._13,todayStrat,yesterdayStrat,weeklySq,monthlySq, dailySQs);
+				}
 			}catch(BackTestOrderCreatedException e) {
 				backTestOrder= true;
 			}
 		}
+		
 		if (!backTestOrder) {
 			// Close
 			orders.forEach(o -> {
@@ -90,7 +105,6 @@ public class TheStratService {
 		
 		stopLossCloseOrder(bso,sq);
 		closeOnLastWeekBreak(bso,sq,weeklySq,dailySQs);
-		
 	}
 	
 	public void closeOnLastWeekBreak(BacktestStockOrder bso, StockQuote sq, StockQuote weeklySq,
@@ -193,8 +207,8 @@ public class TheStratService {
 		return StratDirection.valueOfLabel(currentWStrat.getDirectionId());
 	}
 	
-	private void threeCandleStrat(TheStrat strat,TechAnalysisStrat todayStrat, TechAnalysisStrat yesterdayStrat,
-			TechAnalysisStrat dayBeforeYesterdayStrat, StockQuote weeklySq, StockQuote monthlySq, Set<StockQuote> dailySQs) {
+	private void twoCandleStrat(TheStrat strat,TechAnalysisStrat todayStrat, TechAnalysisStrat yesterdayStrat,
+			StockQuote weeklySq, StockQuote monthlySq, Set<StockQuote> dailySQs) {
 		StockQuote prevW = hfSvc.getPreviousWeek(todayStrat.getStockQuote(), dailySQs);
 		
 		// Check for Sell - Is this a reversal into FTFC
@@ -209,8 +223,8 @@ public class TheStratService {
 		sb.append("SELL-");
 		
 		if((yLow<wOpen || tLow<wOpen) ) {
-			if(yesterdayStrat.getDirectionId() == StratDirection.UP.getDirectionId()) {
-				if(strat == TheStrat._122 && todayStrat.getDirectionId() == StratDirection.DOWN.getDirectionId() || strat == TheStrat._123) {
+			if(checkYesterday(yesterdayStrat, strat,StratDirection.UP)) {
+				if(checkToday(todayStrat, strat, StratDirection.DOWN )){
 					StratDirection direction = getWeeklyTrend(weeklySq,prevW);
 					if(direction == StratDirection.DOWN) {
 						BacktestStockOrder bso = createNewBackTestOrder(todayStrat.getStockQuote(),
@@ -239,8 +253,9 @@ public class TheStratService {
 		
 
 		if((yHigh > wOpen ||  tHigh>wOpen ) ) {
-			if(yesterdayStrat.getDirectionId() == StratDirection.DOWN.getDirectionId()) {
-				if(strat == TheStrat._122 && todayStrat.getDirectionId() == StratDirection.UP.getDirectionId() || strat == TheStrat._123) {
+			if(checkYesterday(yesterdayStrat, strat,StratDirection.DOWN)) {
+				if(checkToday(todayStrat, strat, StratDirection.UP )) {
+//					(strat != TheStrat._123 && todayStrat.getDirectionId() == StratDirection.UP.getDirectionId()) || strat == TheStrat._123) {
 					StratDirection direction = getWeeklyTrend(weeklySq,prevW);
 					if(direction == StratDirection.UP) {
 						BacktestStockOrder bso = createNewBackTestOrder(todayStrat.getStockQuote(),
@@ -258,5 +273,16 @@ public class TheStratService {
 		}
 		
 		System.out.println("Scenario: "+strat +"-"+todayStrat.getStockQuote().getQuoteDatetime() +":" + sb);
+	}
+	
+	private boolean checkYesterday(TechAnalysisStrat yesterdayStrat, TheStrat strat, StratDirection direction) {
+		int yesterdayCandleId = strat.getYesterdayCandleId();
+		return (yesterdayCandleId == 2 && yesterdayStrat.getDirectionId() == direction.getDirectionId()) || yesterdayCandleId !=2; 
+	}
+	
+	private boolean checkToday(TechAnalysisStrat todayStrat, TheStrat strat , StratDirection direction) {
+		
+		int todayCandleId = strat.getTodayCandleId();
+		return (todayCandleId == 2 && todayStrat.getDirectionId() ==  direction.getDirectionId()) || todayCandleId != 2;
 	}
 }

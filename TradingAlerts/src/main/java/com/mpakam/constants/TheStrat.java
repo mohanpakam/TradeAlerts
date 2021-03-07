@@ -26,4 +26,15 @@ public enum TheStrat {
         return this.strat;
     }
 	
+	public int getYesterdayCandleId() {
+	    return (strat/10)%10;
+	}
+	
+	public int getDayB4YsdayCandleId() {
+	    return (strat/100)%10;
+	}
+	
+	public int getTodayCandleId() {
+	    return (strat)%10;
+	}
 }

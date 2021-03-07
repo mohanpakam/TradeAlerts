@@ -136,9 +136,14 @@ public class HigherTimeFrameStockQuoteService {
 			start = start.plusDays(1); // to find the next day
 			lastWeekSq = getStockQuoteByDate(start, sqSet);
 		}
-		StockQuote prevW=aggregateStockQuote(lastWeekSq, sqSet, start, end);
-		weeklyFinalSQs.put(key, prevW);
-		return prevW;
+		if(lastWeekSq != null) {
+			StockQuote prevW=aggregateStockQuote(lastWeekSq, sqSet, start, end);
+			if(prevW !=null) {
+				weeklyFinalSQs.put(key, prevW);
+				return prevW;
+			}
+		}
+		return dailySQ;
 	}
 	
 	public StockQuote getStockQuoteByDate(LocalDate start,Set<StockQuote> sqSet) {
