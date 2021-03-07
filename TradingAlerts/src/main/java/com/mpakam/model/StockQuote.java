@@ -90,11 +90,13 @@ public class StockQuote implements Serializable, Comparable<StockQuote> {
 	 * @param sq
 	 */
 	public StockQuote(StockQuote sq) {
+		if(sq != null) {
 		this.close= sq.close;
 		this.high = sq.high;
 		this.low = sq.low;
 		this.open = sq.open; //do not set the Open to help in the aggregate StockQuotes like Weekly
 		this.stock = sq.stock;
+		}
 	}
 
 	public int getStockQuoteId() {

@@ -1,5 +1,6 @@
 package com.mpakam.dao;
 
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -29,5 +30,6 @@ public interface StockQuoteDao {
 	Set<StockQuote> findAllDailySetByStock(Stock stock);
 	Set<StockQuote> findAllWeeklySetByStock(Stock stock);
 	Set<StockQuote> findAllMonthlySetByStock(Stock stock);
-	Set<StockQuote> findAllSetByStock(Stock stock, Interval i);	
+	Set<StockQuote> findAllSetByStock(Stock stock, Interval i);
+	public StockQuote findStockQuoteByQuoteDate(Stock stock, final LocalDateTime dateTime);
 }

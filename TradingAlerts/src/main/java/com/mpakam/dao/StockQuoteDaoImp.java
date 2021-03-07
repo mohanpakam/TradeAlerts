@@ -132,5 +132,24 @@ public class StockQuoteDaoImp implements StockQuoteDao {
 	public Set<StockQuote> findAllMonthlySetByStock(Stock stock) {
 		return findAllSetByStock(stock, Interval.MONTHLY);
 	}
+	
+	@Transactional
+	@Override
+	public StockQuote findStockQuoteByQuoteDate(Stock stock, final LocalDateTime quoteDate) {
+			log.debug("Retrieving the stock quote data from db " + stock.getTicker());
+		String queryString = "FROM StockQuote WHERE stocknum = :stocknum and interval=:interval and quoteDatetime=:dateTime order by quoteDatetime desc";
+		StockQuote result= (StockQuote) sessionFactory.getCurrentSession()
+								.createQuery(queryString)
+								.setMaxResults(1)
+								.setParameter("stocknum", stock.getStocknum())
+								.setParameter("interval", stock.getInterval())
+								.setParameter("dateTime", quoteDate)
+								.uniqueResult();
+			if(result != null)
+				quotesCache.put(stock, result);
+			else
+				return null;
+		return quotesCache.get(stock);
+	}
 
 }

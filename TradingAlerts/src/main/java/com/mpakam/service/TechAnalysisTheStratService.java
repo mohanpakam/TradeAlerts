@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mpakam.constants.CandleColor;
-import com.mpakam.constants.StratDirection;
 import com.mpakam.constants.StratCandleIdentifier;
+import com.mpakam.constants.StratDirection;
 import com.mpakam.dao.MonitoredStockDao;
 import com.mpakam.dao.StockQuoteDao;
 import com.mpakam.dao.TechAnalysisStratDao;
@@ -47,8 +47,6 @@ public class TechAnalysisTheStratService {
 	// g. 3-2
 	//3. considers the higher Time Frames to determine the above Strats
 	public TechAnalysisStrat createStrat(StockQuote currentQuote, StockQuote lastQuote) {
-		
-		//TODO: 
 		/*1. Saves the Strat entries for all days
 		 * 2. creates and udpates the Week with in the same Week
 		 * 3. creates and udpates the Monthly with in the same Month 
@@ -65,12 +63,8 @@ public class TechAnalysisTheStratService {
 			return strat;
 		}
 		
-		// def insideBar = high < high[1] and low > low[1];
-		// def outsideBar = high > high[1] and low < low[1];
-		// plot barType = if insideBar then 1 else if outsideBar then 3 else 2;
 		int highComp = currentQuote.getHigh().compareTo(lastQuote.getHigh());
 		int lowComp = currentQuote.getLow().compareTo(lastQuote.getLow());
-		String stratId = null;
 
 		// Current high is less than or equal to previous high
 		// Current Low is greater than or equal to preiouv low then 1
@@ -86,10 +80,11 @@ public class TechAnalysisTheStratService {
 			strat.setDirectionId(highComp == 1?StratDirection.UP.getDirectionId():StratDirection.DOWN.getDirectionId());
 			strat.setCandleId(StratCandleIdentifier.TWO.getStratId());
 		}
-		System.out.println(currentQuote.getStock().getTicker() + "-" + currentQuote.getQuoteDatetime() +":"
-				+ StratCandleIdentifier.valueOfLabel(strat.getCandleId()).name() +"-" 
-				+ StratDirection.valueOfLabel(strat.getDirectionId()).name() +"-" 
-				+ CandleColor.valueOfLabel(strat.getCandleColor()).name());
+//		System.out.println(currentQuote.getStock().getTicker() + "-" + Interval.valueOfLabel(currentQuote.getInterval())
+//				+ "-" + currentQuote.getQuoteDatetime() + ":"
+//				+ StratCandleIdentifier.valueOfLabel(strat.getCandleId()).name() + "-"
+//				+ StratDirection.valueOfLabel(strat.getDirectionId()).name() + "-"
+//				+ CandleColor.valueOfLabel(strat.getCandleColor()).name());
 		return strat;
 	}
 	

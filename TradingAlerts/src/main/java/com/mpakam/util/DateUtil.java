@@ -2,6 +2,8 @@ package com.mpakam.util;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class DateUtil {
 	
@@ -48,5 +50,15 @@ public class DateUtil {
 	      }
 		return end;
 	}
+	
+	/** Converts String to LocalDateTime based on the Patter - yyyy-MM-dd HH:mm
+	 * @param datetime
+	 * @return
+	 */
+	public static LocalDateTime toLocalDateTime(String datetime) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(datetime, formatter);
+	}
+	
 
 }
